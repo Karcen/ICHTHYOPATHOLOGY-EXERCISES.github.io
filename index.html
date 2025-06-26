@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>鱼病学刷题系统 - 复习</title>
+	<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;800&display=swap" rel="stylesheet">
+	<style>
+		body {
+		  font-family: 'Raleway', sans-serif;
+		  background: linear-gradient(to bottom right, #e0f7fa, #fff);
+		  margin: 0;
+		  padding: 0;
+		  color: #1e293b;
+		}
+		.container {
+		  max-width: 900px;
+		  margin: 3rem auto;
+		  background: white;
+		  padding: 2.5rem;
+		  border-radius: 1.5rem;
+		  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+		}
+		h1 {
+		  text-align: center;
+		  color: #0f172a;
+		  font-size: 2.5rem;
+		  margin-bottom: 0.5rem;
+		}
+		h2 {
+		  text-align: center;
+		  color: #3b82f6;
+		  font-size: 1.3rem;
+		  margin-bottom: 2rem;
+		}
+		.question {
+		  margin-bottom: 2.5rem;
+		  padding: 1rem 1.5rem;
+		  background: #f8fafc;
+		  border-left: 5px solid #60a5fa;
+		  border-radius: 0.75rem;
+		}
+		.question p {
+		  font-weight: 600;
+		  font-size: 1.1rem;
+		}
+		.option {
+		  margin: 0.5rem 0;
+		  padding: 0.75rem 1rem;
+		  border: 2px solid #cbd5e1;
+		  border-radius: 0.75rem;
+		  cursor: pointer;
+		  background: #ffffff;
+		  transition: all 0.2s ease;
+		}
+		.option:hover {
+		  background: #e0f2fe;
+		}
+		.option.correct {
+		  background: #bbf7d0;
+		  border-color: #10b981;
+		  font-weight: bold;
+		}
+		.option.incorrect {
+		  background: #fecaca;
+		  border-color: #ef4444;
+		  font-weight: bold;
+		}
+		#controls {
+		  text-align: center;
+		  margin-bottom: 2.5rem;
+		}
+		.btn {
+		  margin: 0.5rem;
+		  padding: 0.8rem 1.5rem;
+		  border: none;
+		  border-radius: 0.75rem;
+		  background: #3b82f6;
+		  color: white;
+		  font-size: 1rem;
+		  cursor: pointer;
+		  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+		  transition: background 0.3s ease;
+		}
+		.btn:hover {
+		  background: #2563eb;
+		}
+		#celebration {
+		  text-align: center;
+		  font-size: 2.5rem;
+		  color: #16a34a;
+		  display: none;
+		  margin-bottom: 1rem;
+		  animation: pop 0.8s ease-in-out forwards;
+		}
+		@keyframes pop {
+		  0% { transform: scale(0.2); opacity: 0; }
+		  80% { transform: scale(1.1); opacity: 1; }
+		  100% { transform: scale(1); }
+		}
+		footer {
+		  margin-top: 3rem;
+		  text-align: center;
+		  font-size: 0.9rem;
+		  color: #64748b;
+		}
+		footer a {
+		  color: #3b82f6;
+		  text-decoration: none;
+		}
+		footer a:hover {
+		  text-decoration: underline;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>鱼病学选择题练习</h1>
+		<h2>用于复习康元环老师课程</h2>
+		<div id="controls">
+			<button class="btn" onclick="startAllMode()">📚 显示所有题目</button>
+			<button class="btn" onclick="startOneByOneMode()">🔄 一道一道刷题</button>
+			<button class="btn" onclick="startWrongMode()">❌ 错题再练</button>
+		</div>
+		<div id="celebration">🎉 做对啦！</div>
+		<div id="quiz"></div>
+		<div id="nextBtn" style="text-align:center; display:none;">
+			<button class="btn" onclick="nextManual()">👉 下一题</button>
+		</div>
+	</div>
+	<footer> 由 Karcen Zheng 制作，<a href="https://karcen.github.io/zhengjiacheng.github.io/" target="_blank">联系我</a>
+	</footer>
+	<script>
+		const questions = [
+		  {
+		    question: "鱼病的发生通常是哪些因素共同作用的结果？",
+		    options: ["病原和宿主", "宿主和环境", "病原、宿主和环境", "病原和水温"],
+		    answer: 2
+		  },
+		  {
+		    question: "以下哪项属于非生物因素引起的鱼类疾病？",
+		    options: ["弧菌感染", "鳃部寄生虫", "温度变化导致的应激反应", "链球菌感染"],
+		    answer: 2
+		  },
+		{
+		    "question": "鱼病学的英文名称是什么？",
+		    "options": ["Ichthyology", "Ichthyopathology", "Fishery Pathology", "Aquatic Pathology"],
+		    "answer": 1
+		},
+		{
+		    "question": "鱼病学研究范围广义上包括哪些生物？",
+		    "options": ["仅鱼类", "鱼类及水生植物", "各种水生动物", "鱼类及两栖动物"],
+		    "answer": 2
+		},
+		{
+		    "question": "鱼病防控困难的原因不包括？",
+		    "options": ["水生动物品种少", "致病因子复杂", "疾病具有暴发性", "群体性发病特征"],
+		    "answer": 0
+		},
+		{
+		    "question": "下列哪项属于传染性疾病？",
+		    "options": ["寄生虫病", "细菌感染疾病", "赤潮引起的疾病", "机械损伤疾病"],
+		    "answer": 1
+		},
+		{
+		    "question": "单殖吸虫感染引起的疾病属于哪类？",
+		    "options": ["传染性疾病", "侵袭性病害", "植物性敌害", "非生物性疾病"],
+		    "answer": 1
+		},
+		{
+		    "question": "微囊藻引起的鱼类疾病属于？",
+		    "options": ["植物性敌害", "动物性敌害", "传染性疾病", "营养性疾病"],
+		    "answer": 0
+		},
+		{
+		    "question": "重金属中毒属于哪类鱼病？",
+		    "options": ["传染性疾病", "非正常水环境因素疾病", "营养过剩疾病", "遗传性疾病"],
+		    "answer": 1
+		},
+		{
+		    "question": "维生素缺乏引起的疾病属于？",
+		    "options": ["营养过剩或不良疾病", "机械损伤疾病", "传染性疾病", "先天性疾病"],
+		    "answer": 0
+		},
+		{
+		    "question": "体表鳞片脱落通常由什么引起？",
+		    "options": ["遗传缺陷", "机械损伤", "病毒感染", "水质恶化"],
+		    "answer": 1
+		},
+		{
+		    "question": "由一种病原感染引起的疾病称为？",
+		    "options": ["单纯感染", "混合感染", "原发性感染", "继发性感染"],
+		    "answer": 0
+		},
+		{
+		    "question": "病原直接感染健康鱼体发病称为？",
+		    "options": ["单纯感染", "混合感染", "原发性感染", "隐性感染"],
+		    "answer": 2
+		},
+		{
+		    "question": "病程2-6周的疾病属于哪类？",
+		    "options": ["急性型", "亚急性型", "慢性型", "潜伏期"],
+		    "answer": 1
+		},
+		{
+		    "question": "病程可达数月甚至数年的疾病属于？",
+		    "options": ["急性型", "亚急性型", "慢性型", "前驱期"],
+		    "answer": 2
+		},
+		{
+		    "question": "下列哪项不属于病原分泌的有害物质？",
+		    "options": ["内毒素", "外毒素", "生长因子", "溶血素"],
+		    "answer": 2
+		},
+		{
+		    "question": "寄生虫吸盘附着造成的损伤属于？",
+		    "options": ["分泌有害物质", "组织损伤", "机械损伤", "营养夺取"],
+		    "answer": 2
+		},
+		{
+		    "question": "寄生虫吸食宿主血液属于哪种危害？",
+		    "options": ["分泌有害物质", "组织损伤", "机械损伤", "夺取营养"],
+		    "answer": 3
+		},
+		{
+		    "question": "三环学说中病原需要达到什么条件才会引起感染？",
+		    "options": ["任意数量", "一定数量或高致病性", "低致病性", "与宿主共生"],
+		    "answer": 1
+		},
+		{
+		    "question": "鲤疱疹病毒Ⅲ型主要感染哪种鱼类？",
+		    "options": ["鲫鱼", "鲤鱼及锦鲤", "草鱼", "鲢鱼"],
+		    "answer": 1
+		},
+		{
+		    "question": "低溶氧和氨氮超标易引发什么疾病？",
+		    "options": ["病毒性疾病", "细菌性疾病", "寄生虫病", "营养性疾病"],
+		    "answer": 1
+		},
+		{
+		    "question": "下列哪种疾病属于OIE调整的二类疾病？",
+		    "options": ["肠炎", "鲤春病毒血症", "烂尾病", "水霉病"],
+		    "answer": 1
+		},
+		{
+		    "question": "鱼类发病后出现狂游、打转属于什么症状？",
+		    "options": ["体表异常", "神经功能紊乱", "消化异常", "呼吸异常"],
+		    "answer": 1
+		},
+		{
+		    "question": "传染性造血器官坏死病会导致哪种脑部病变？",
+		    "options": ["化脓性脑炎", "非化脓性脑炎", "脑部出血", "脑肿瘤"],
+		    "answer": 1
+		},
+		{
+		    "question": "鱼鳃出现充血、坏死属于哪种临床表现？",
+		    "options": ["体表异常", "鳃部症状", "神经症状", "消化症状"],
+		    "answer": 1
+		},
+		{
+		    "question": "烈性毒物中毒的潜伏期通常为？",
+		    "options": ["几分钟", "几天", "几周", "几月"],
+		    "answer": 0
+		},
+		{
+		    "question": "疾病发展到高潮期出现典型症状属于哪个时期？",
+		    "options": ["潜伏期", "前驱期", "发展期", "结局期"],
+		    "answer": 2
+		},
+		{
+		    "question": "鱼体体表溃疡修复后留下疤痕属于哪种结局？",
+		    "options": ["完全恢复", "不完全恢复", "死亡", "慢性期"],
+		    "answer": 1
+		},
+		{
+		    "question": "细菌性肾病的病原是什么？",
+		    "options": ["嗜冷黄杆菌", "鲑肾杆菌", "鳗弧菌", "链球菌"],
+		    "answer": 1
+		},
+		{
+		    "question": "弧菌病的典型症状不包括？",
+		    "options": ["体色变黑", "鳍基发红", "眼球突出", "鳞片竖起"],
+		    "answer": 3
+		},
+		{
+		    "question": "疖疮病的病原是什么？",
+		    "options": ["杀鲑气单胞菌", "鲑肾杆菌", "鳗弧菌", "链球菌"],
+		    "answer": 0
+		},
+		{
+		    "question": "链球菌病的病原是什么？",
+		    "options": ["海豚链球菌", "嗜冷黄杆菌", "鲑肾杆菌", "弧菌"],
+		    "answer": 0
+		},
+		{
+		    "question": "诺卡氏菌病的病原属于什么类型？",
+		    "options": ["革兰氏阴性菌", "革兰氏阳性分枝杆菌", "病毒", "寄生虫"],
+		    "answer": 1
+		},
+		{
+		    "question": "病毒性出血性败血症的病原属于什么科？",
+		    "options": ["疱疹病毒科", "弹状病毒科", "虹彩病毒科", "呼肠孤病毒科"],
+		    "answer": 1
+		},
+		{
+		    "question": "传染性造血器官坏死病主要感染多大的幼鱼？",
+		    "options": ["3g以下", "5g以上", "10g以上", "成鱼"],
+		    "answer": 0
+		},
+		{
+		    "question": "鲤春病毒血症的病原是什么类型？",
+		    "options": ["弹状病毒", "疱疹病毒", "虹彩病毒", "细菌"],
+		    "answer": 0
+		},
+		{
+		    "question": "鲤鱼疱疹病毒病的病原属于什么病毒？",
+		    "options": ["DNA病毒", "RNA病毒", "弹状病毒", "正黏病毒"],
+		    "answer": 0
+		},
+		{
+		    "question": "真鲷虹彩病毒的直径约为多少？",
+		    "options": ["20-40nm", "50-80nm", "100-150nm", "200-240nm"],
+		    "answer": 3
+		},
+		{
+		    "question": "对虾白斑病的病原是什么？",
+		    "options": ["白斑综合征病毒", "弧菌", "诺卡氏菌", "链球菌"],
+		    "answer": 0
+		},
+		{
+		    "question": "水生动物安全的三大基石不包括？",
+		    "options": ["预防", "治疗", "控制", "扑杀"],
+		    "answer": 1
+		},
+		{
+		    "question": "DNA疫苗的本质是什么？",
+		    "options": ["编码毒力因子的基因", "灭活病原", "亚单位蛋白", "合成肽"],
+		    "answer": 0
+		},
+		{
+		    "question": "相对保护率（RPS）的计算基于什么？",
+		    "options": ["免疫鱼与未免疫鱼的生长率", "免疫鱼与未免疫鱼的死亡率", "免疫鱼与未免疫鱼的摄食量", "免疫鱼与未免疫鱼的繁殖率"],
+		    "answer": 1
+		},
+		{
+		    "question": "群体免疫的实现基础是？",
+		    "options": ["个体免疫强度", "群体中大部分个体接种疫苗", "环境消毒", "药物投喂"],
+		    "answer": 1
+		},
+		{
+		    "question": "下列哪项不属于非复制型疫苗？",
+		    "options": ["灭活疫苗", "亚单位疫苗", "合成肽疫苗", "减毒活疫苗"],
+		    "answer": 3
+		},
+		{
+		    "question": "合成肽疫苗为什么需要耦合到载体上？",
+		    "options": ["增强抗原性", "便于注射", "降低毒性", "延长保存期"],
+		    "answer": 0
+		},
+		{
+		    "question": "疫苗物理灭活不包括哪种方法？",
+		    "options": ["紫外线照射", "高温处理", "声波处理", "甲醛处理"],
+		    "answer": 3
+		},
+		{
+		    "question": "甲醛灭活疫苗的主要优势不包括？",
+		    "options": ["价格低廉", "免疫原性保留好", "无残留风险", "使用方便"],
+		    "answer": 2
+		},
+		{
+		    "question": "灭活疫苗优化步骤中不需要考虑的是？",
+		    "options": ["灭活化合物浓度", "灭活时间", "疫苗价格", "免疫原性保留"],
+		    "answer": 2
+		},
+		{
+		    "question": "细菌性疫苗减毒策略不包括？",
+		    "options": ["实验室传代", "基因工程敲除毒力基因", "环境菌替代", "增加毒力因子表达"],
+		    "answer": 3
+		},
+		{
+		    "question": "DNA疫苗防治病毒性疾病的优势在于？",
+		    "options": ["诱导细胞免疫", "只能诱导体液免疫", "无法模拟病毒感染", "制备成本高"],
+		    "answer": 0
+		},
+		{
+		    "question": "虹鳟柱状病的病原是什么？",
+		    "options": ["柱状黄杆菌", "嗜冷黄杆菌", "鲑肾杆菌", "弧菌"],
+		    "answer": 0
+		},
+		{
+		    "question": "鳗鱼类AB型弧菌病的病原属于什么？",
+		    "options": ["革兰氏阳性菌", "革兰氏阴性菌", "病毒", "真菌"],
+		    "answer": 1
+		},
+		{
+		    "question": "真鲷虹彩病毒病在什么水温下停止发病？",
+		    "options": ["＜10℃", "＜20℃", "＜30℃", "＜40℃"],
+		    "answer": 1
+		},
+		{
+		    "question": "鲥鱼诺卡菌病的典型症状是什么？",
+		    "options": ["体表溃疡", "躯干/鳃部结节", "眼球突出", "体色发黑"],
+		    "answer": 1
+		},
+		{
+		    "question": "鲤春病毒血症的防控措施中有效的是？",
+		    "options": ["升温至30℃", "降低水温", "投喂抗生素", "增加密度"],
+		    "answer": 0
+		},
+		{
+		    "question": "鱼类先天或遗传缺陷引起的疾病举例是？",
+		    "options": ["畸形", "溃疡", "出血", "肠炎"],
+		    "answer": 0
+		},
+		{
+		    "question": "下列哪种方法属于化学灭活疫苗的试剂？",
+		    "options": ["甲醛", "紫外线", "高温", "声波"],
+		    "answer": 0
+		},
+		{
+		    "question": "非复制型疫苗的主要优势是什么？",
+		    "options": ["免疫原性强", "安全性高", "诱导细胞免疫", "生产成本低"],
+		    "answer": 1
+		},
+		{
+		    "question": "病毒性疫苗减毒策略中提到的敲除胸苷激酶基因属于什么技术？",
+		    "options": ["实验室传代", "分子生物学技术", "物理诱变", "化学诱变"],
+		    "answer": 1
+		},
+		{
+		    "question": "鱼类发病后肛门红肿、眼球突出属于哪类症状？",
+		    "options": ["体表异常", "消化与眼部症状", "神经症状", "鳃部症状"],
+		    "answer": 1
+		}
+		];
+		
+		let wrongCounts = new Array(questions.length).fill(0);
+		let current = 0;
+		let mode = "all";
+		let customList = null;
+		
+		function startAllMode() {
+		  mode = "all";
+		  document.getElementById('quiz').innerHTML = '';
+		  document.getElementById('celebration').style.display = 'none';
+		  document.getElementById('nextBtn').style.display = 'none';
+		  questions.forEach((q, i) => renderQuestion(q, i));
+		}
+		
+		function startOneByOneMode() {
+		  mode = "one";
+		  current = 0;
+		  customList = null;
+		  document.getElementById('quiz').innerHTML = '';
+		  document.getElementById('celebration').style.display = 'none';
+		  document.getElementById('nextBtn').style.display = 'none';
+		  renderOne(current);
+		}
+		
+		function startWrongMode() {
+		  mode = "wrong";
+		  current = 0;
+		  document.getElementById('quiz').innerHTML = '';
+		  document.getElementById('celebration').style.display = 'none';
+		  document.getElementById('nextBtn').style.display = 'none';
+		  const wrongQuestions = questions.filter((_, i) => wrongCounts[i] > 0);
+		  if (wrongQuestions.length === 0) {
+		    document.getElementById('quiz').innerHTML = '<p>暂无错题</p>';
+		    return;
+		  }
+		  customList = wrongQuestions;
+		  renderOne(current, customList);
+		}
+		
+		function nextManual() {
+		  current++;
+		  renderOne(current, customList);
+		}
+		
+		function renderOne(index, listRef = null) {
+		  const list = listRef || questions;
+		  if (index >= list.length) {
+		    document.getElementById('quiz').innerHTML = '<p>已完成所有题目！</p>';
+		    document.getElementById('nextBtn').style.display = 'none';
+		    return;
+		  }
+		  document.getElementById('quiz').innerHTML = '';
+		  document.getElementById('celebration').style.display = 'none';
+		  document.getElementById('nextBtn').style.display = 'none';
+		  renderQuestion(list[index], index, true, list);
+		}
+		
+		function renderQuestion(q, index, isOne = false, listRef = null) {
+		  const div = document.createElement('div');
+		  div.className = 'question';
+		  const p = document.createElement('p');
+		  p.textContent = `${index + 1}. ${q.question}`;
+		  div.appendChild(p);
+		
+		  q.options.forEach((option, j) => {
+		    const btn = document.createElement('div');
+		    btn.className = 'option';
+		    btn.textContent = option;
+		    btn.addEventListener('click', () => {
+		      if (btn.classList.contains('correct') || btn.classList.contains('incorrect')) return;
+		      if (j === q.answer) {
+		        btn.classList.add('correct');
+		        if (isOne) {
+		          document.getElementById('celebration').style.display = 'block';
+		          setTimeout(() => {
+		            document.getElementById('celebration').style.display = 'none';
+		            current++;
+		            renderOne(current, listRef);
+		          }, 1000);
+		        }
+		      } else {
+		        btn.classList.add('incorrect');
+		        div.querySelectorAll('.option')[q.answer].classList.add('correct');
+		        wrongCounts[index]++;
+		        if (isOne) {
+		          document.getElementById('nextBtn').style.display = 'block';
+		        }
+		      }
+		    });
+		    div.appendChild(btn);
+		  });
+		
+		  document.getElementById('quiz').appendChild(div);
+		}
+	</script>
+</body>
+</html>
